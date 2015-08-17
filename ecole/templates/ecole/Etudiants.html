@@ -1,0 +1,9 @@
+<h1>Liste des étudiants</h1>
+
+{% for eleve in Eleve_liste %}
+    <div class="article">
+       <h3><a href="/ecole/Etudiant_Detail/{{eleve.pk}}">{{eleve.nom}} {{eleve.prenom}}</a>, née le {{eleve.dateDeNaissance}}</h>
+    </div>
+{% endfor %}
+
+<h3><a href="/ecole/eleve_nouveau">Ajouter un étudiant</a></h>

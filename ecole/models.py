@@ -1,0 +1,145 @@
+#-*- coding: utf-8 -*-
+from django.db import models
+from django.core.validators import RegexValidator
+
+class AnneeScolaire(models.Model):
+	anneeDeDebut=models.IntegerField(verbose_name="année de début")
+	anneeDeFin=models.IntegerField(verbose_name="année de fin")
+
+	def __unicode__(self):
+		return u"{0}/{1}".format(self.anneeDeDebut,self.anneeDeFin)
+
+class Eleve(models.Model):
+	nom=models.CharField(max_length=40)
+	prenom=models.CharField(max_length=40)
+	dateDeNaissance=models.DateTimeField(verbose_name="date de naissance")
+	adresse=models.CharField(max_length=300)
+	telephone=models.IntegerField(default=00212);
+	"""telephone=RegexValidator(regex=r'^\+?1?\d{9,15}$', message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed.")"""
+	dateInscription=models.DateTimeField(verbose_name="date d'inscription")
+
+	def __unicode__(self):
+		return u"{0},{1}".format(self.nom,self.prenom)
+
+class Cursus(models.Model):
+	nom=models.CharField(max_length=40)
+
+	def __unicode__(self):
+		return self.nom
+
+class InscriptionCursus(models.Model):
+	anneeScolaire=models.ForeignKey(AnneeScolaire)
+	eleve=models.ForeignKey(Eleve)
+	cursus=models.ForeignKey(Cursus)
+
+	def __unicode__(self):
+		return u"{},{},{}".format(self.eleve,self.cursus,self.anneeScolaire)
+
+class Periode(models.Model):
+	periode=models.CharField(max_length=5,verbose_name="Semestre")
+	cursus=models.ForeignKey('Cursus')
+	
+	def __unicode__(self):
+		return u"{0}, {1}".format(self.cursus,self.periode)
+
+class UE(models.Model):
+	nom=models.CharField(max_length=100)
+	nombreMatieres=models.IntegerField(default=8)
+	periode=models.ForeignKey(Periode)
+
+	def __unicode__(self):
+		return u"{0}, {1}".format(self.nom,self.periode)
+
+class Matiere(models.Model):
+	"""Ensembe de toutes les matières enseignées à l'iscaf"""
+	nom=models.CharField(max_length=200)
+	ue=models.ForeignKey(UE)
+
+	def __unicode__(self):
+		return u"{0}, {1}".format(self.nom,self.ue)
+
+class Professeur(models.Model):
+	"""Professeurs assurant les cours à l'ISCAF"""
+	nom=models.CharField(max_length=40)
+	prenom=models.CharField(max_length=40)
+	matieres=models.ManyToManyField(Matiere, through='Enseigne')
+
+	def __unicode__(self):
+		return self.nom
+
+class Enseigne(models.Model):
+	"""table intermédiaire permettant de relier les professeurs aux cours qu'ils ont donné"""
+	date=models.DateTimeField(verbose_name="Cours dispensés")
+	tarifHoraire=models.DecimalField(max_digits=5, decimal_places=2, verbose_name="tarif horaire en euros")
+	professeur=models.ForeignKey(Professeur)
+	matiere=models.ForeignKey(Matiere)
+	anneeScolaire=models.ForeignKey(AnneeScolaire, default='1')
+
+	def __unicode__(self):
+		return u"{0} à enseigné {1} le {2}".format(self.professeur.nom,self.matiere.nom,self.date)
+
+class Chauffeur(models.Model):
+	"""Chauffeurs emmenant et ramnenant les professeurs à l'ISCAF"""
+	nom=models.CharField(max_length=40)
+	prenom=models.CharField(max_length=40)
+
+	def __unicode__(self):
+		return self.prenom
+
+class Trajet(models.Model):
+	"""Trajets entre l'ISCAF et l'aéroport"""
+	date=models.DateTimeField(verbose_name="date du trajet")
+	sens=models.DateTimeField(verbose_name="Sens AI ou IA")
+	chauffeur=models.ForeignKey(Chauffeur)
+	Professeur=models.ForeignKey(Professeur)
+	anneeScolaire=models.ForeignKey(AnneeScolaire,default='1')
+
+	def __unicode__(self):
+		return u"{0} à conduit {1} dans le sens {2} le {3}".format(self.chauffeur.nom,self.professeur.nom,self.sens,self.date)
+
+class Surveillant(models.Model):
+	"""Surveillants de l'ISCAF"""
+	nom=models.CharField(max_length=40)
+	prenom=models.CharField(max_length=40)
+	matiere=models.ManyToManyField(Matiere, through='Surveille')
+
+	def __unicode__(self):
+		return self.nom
+
+class Surveille(models.Model):
+	"""Surveillances effectuées par les surveillants"""
+	date=models.DateTimeField(verbose_name="date de l'examen")
+	duree=models.DecimalField(max_digits=5, decimal_places=1, verbose_name="durée de la surveillance")
+	surveillant=models.ForeignKey(Surveillant)
+	matiere=models.ForeignKey(Matiere)
+	anneeScolaire=models.ForeignKey(AnneeScolaire, default='1')
+
+	def __unicode__(self):
+		return u"{0} à surveillé {1} le {3}".format(self.surveillant.nom,self.matiere.nom,self.date)
+
+
+class Session(models.Model):
+	"""Différentes sessions des examens"""
+	nom=models.CharField(max_length=50)
+
+	def __unicode__(self):
+		return unicode(self.nom)
+
+class Examen(models.Model):
+	matiere=models.ForeignKey(Matiere)
+	anneeScolaire=models.ForeignKey(AnneeScolaire, default='1')
+	session=models.ForeignKey(Session)
+	isDone=models.BooleanField(default=False)
+
+	def __unicode__(self):
+		return u"{0},{1},{2}".format(self.matiere,self.session,self.anneeScolaire)
+
+class Note(models.Model):
+	"""Notes obtenues par les élèves"""
+	note=models.DecimalField(max_digits=5, decimal_places=2)
+	eleve=models.ForeignKey(Eleve)
+	examen=models.ForeignKey(Examen,default='1')
+	
+
+	def __unicode__(self):
+		return u"{0},{1},{2}".format(self.note,self.eleve,self.examen)

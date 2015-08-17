@@ -1,0 +1,27 @@
+{% for cursus in cursus %}
+    <div class="article">
+    	<h3>{{cursus.nom}}</h3>
+	</div>
+	{% for periode in periodes %}
+		{% if periode.cursus == cursus %}
+   			<div class="article">
+    			<h4>{{periode.periode}}</h4>
+   			</div>
+   				{% for ue in ues %}
+   					{% if ue.periode == periode %}
+    					<div class="article">
+    						<h5>{{ue.nom}}</h5>
+   						 </div>
+   						{% for matiere in matieres %}
+   							{% if matiere.ue == ue %}
+   								<div class="article">
+    								<h6>{{matiere.nom}}</h6>
+   							 	</div>
+   							 	
+   						 	{% endif %}
+   						{% endfor %}
+   					{% endif %}
+   				{% endfor %}
+   		{% endif %}	
+	{% endfor %}
+{% endfor %}

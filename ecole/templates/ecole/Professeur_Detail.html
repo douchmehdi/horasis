@@ -1,0 +1,8 @@
+<h1>Fiche Professeur</h1>
+<h2>{{professeur.nom}} {{professeur.prenom}}</h2>
+
+Matières enseignées
+{% for matiere in matieres %}
+       <h3> {{matiere.1}}, {{matiere.0}}  <a href="/ecole/HistoriqueCours/{{professeur.pk}}/{{matiere.2}}">Détail</a></h3>
+{% endfor %}
+

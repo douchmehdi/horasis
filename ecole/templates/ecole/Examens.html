@@ -1,0 +1,9 @@
+<h1>Années scolaires</h1>
+
+{% for annee in AnneeScolaires_liste %}
+    <div class="article">
+       <h3><a href="/ecole/examen/{{annee.anneeDeDebut}}/{{annee.anneeDeFin}}">{{annee.anneeDeDebut}}/{{annee.anneeDeFin}}</a></h>
+    </div>
+{% endfor %}
+
+<h3><a href="/ecole/annee_nouveau">Ajouter une année scolaire</a></h>

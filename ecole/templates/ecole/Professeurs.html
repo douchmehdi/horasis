@@ -1,0 +1,9 @@
+<h1>Liste des professeurs</h1>
+
+{% for professeur in Professeur_liste %}
+    <div class="article">
+       <h3><a href="/ecole/Professeur_Detail/{{professeur.pk}}">{{professeur.nom}} {{professeur.prenom}}</a></h>
+    </div>
+{% endfor %}
+
+<h3><a href="/ecole/professeur_nouveau">Ajouter un professeur</a></h>
